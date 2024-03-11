@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Log in</title>
+        <style>
+            html, body {
+                height: 100%;
+                margin: 0;
+                padding: 0;
+            }
+
+            .flex-container {
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                height: 100%;
+                background-color: #F5EBE0;
+            }
+            
+            .flex-container div {
+                text-align: center;
+            }
+
+            .patient{
+                margin-left: 50px;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="flex-container">
+            <div>
+                <h1 style="font-family:'Cooper Black';">Maternal and Child Care</h1>
+                <table id="patient" class="patient">
+                    <tr>
+                        <th><label for="name">Name:</label></th>
+                        <td><input type="text" id="name"></td>
+                    </tr>
+                    <tr>
+                        <th><label for="idNumber">ID Number:</label></th>
+                        <td><input type="text" id="idNumber"></td>
+                    </tr>
+                </table>
+                <br>
+                <button type="button" onclick="login()">Submit</button>
+                <hr>
+                <div class="register-link">
+                    <p><a href="post_patient.html">Not have data</a></p>
+                    <p><a href="main.html">Return to main page</a></p>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            function login(){
+                const searchName = document.getElementById("name").value;
+                const searchIdNumber = document.getElementById("idNumber").value;
+                
+                //https://hapi.fhir.org/baseR4
+                fetch("https://fhir.tcumi.com:58443/r5/fhir/Patient?name=" + searchName + "&identifier=" + searchIdNumber)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.total > 0) {
+                        const PatientId = data.entry[0].resource.id;
+                        alert("Patient ID: "+PatientId);
+
+                        if(PatientId){
+                            window.location.href="https://jeremy777777.github.io/004/web?patientId="+ PatientId;
+                        }
+                        else{
+                            alert("搜索不到Patient ID")
+                        }
+                    } else {
+                        alert("資料不存在!"); 
+                        document.getElementById("name").value = "";
+                        document.getElementById("idNumber").value = "";
+                    }
+                })
+                .catch(error => {
+                    console.error("Error searching FHIR data:", error);
+                });
+            }
+        </script>
+    </body>
+</html>
